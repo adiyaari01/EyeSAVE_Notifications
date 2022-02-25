@@ -6,7 +6,8 @@ const childAttandanceReportSchema = new Schema({
     _arrivalTime : String,
     _departureTime : String,
     _absence:String,
-    _delay:Boolean
+    _childDelay:Boolean,
+    _escortDelay:Boolean
 }, {versionKey:false, collection:"children_attendance"}); 
 
 module.exports = model("childAttendanceReport", childAttandanceReportSchema);

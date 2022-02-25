@@ -1,7 +1,7 @@
 const TelegramBot = require("node-telegram-bot-api")
 const {model} = require("mongoose");
 const Escorts = model("Escort");
-const Childrren = model("Child")
+const Children = model("Child")
 const ChildAttendance = model("childAttendanceReport")
 
 const {option, menu, absenceMenu} = require("./menus");
@@ -10,32 +10,7 @@ const {getRequest, updateRequest} = require("../api");
 
 const ParentBot = new TelegramBot(TELEGRAM_TOKEN_PARENTS, {polling:true});
 
-exports.sendMessageToParent = async (userID,msg)=>{
-    await ParentBot.sendMessage(userID,msg);
-}
-
-
-// exports.getChildID = async(userID) => {
-//     cons.log(userID);
-//     const parent = await Escorts.findOne({_telegramID:userID});
-//     // console.log(parent);
-//     // const childID = parent._children;
-//     //const child = Children.findOne({_id:childID});
-//     return 124578966;
-// };
-// exports.ChildDelay = (userID)=>{
-//     const childID = getChildID(userID);
-//     // send updateRequest to update attendance report
-//     //ChildAttendance.Update({_id:childID},/*{_date:getCurrentDate()},*/{$set:{_childDelay:true}});
-//     this.ThanksMessage();
-// }
-
-// exports.ThanksMessage = () =>{
-//     ParentBot.sendMessage(chatId, "Thank you for letting me know!");
-//     ParentBot.sendMessage(chatId, 'See you soon!');
-// }
-
-exports.getCurrentDate = ()=>{
+const getCurrentDate =  () =>{
     let date_ob = new Date();
     // adjust 0 before single digit date
     let day = ("0" + date_ob.getDate()).slice(-2);
@@ -46,6 +21,38 @@ exports.getCurrentDate = ()=>{
     // prints date in YYYY-MM-DD format
     return year + "-" + month + "-" + day;
 }
+exports.getCurrentDate = getCurrentDate;
+
+exports.sendMessageToParent = async (userID,msg)=>{
+    await ParentBot.sendMessage(userID,msg);
+}
+
+const getChildID = async (userID) => {
+    const parent = await Escorts.findOne({_telegramID:userID}).lean();
+    const childID = parent._children[0];
+    return childID;
+}
+exports.getChildID = getChildID;
+
+const updateChildDelay = async (childID)=>{
+    const date = getCurrentDate();
+    await ChildAttendance.findOneAndUpdate({_childId:childID, _date:date},
+    {$set:{_childDelay:true, _childId : childID, _date : date}},{upsert:true});
+}
+exports.updateChildDelay = updateChildDelay;
+
+const updateEscortDelay = async (childID)=>{
+    const date = getCurrentDate();
+    await ChildAttendance.findOneAndUpdate({_childId:childID, _date:date},
+    {$set:{_escortDelay:true, _childId : childID, _date : date}},{upsert:true});
+}
+exports.updateEscortDelay = updateEscortDelay();
+
+const ThanksMessage = (chatId) =>{
+    ParentBot.sendMessage(chatId, "Thank you for letting me know!");
+    ParentBot.sendMessage(chatId, 'See you soon!');
+}
+exports.ThanksMessage = ThanksMessage;
 
 ParentBot.onText(/\/start/, (msg) => {
     const userID = msg.from.id;
@@ -62,27 +69,22 @@ ParentBot.onText(/\/start/, (msg) => {
         ParentBot.sendMessage(msg.chat.id,'Thank you!');
     })
 
-    ParentBot.on('message', (msg) => {
+    ParentBot.on('message', async (msg) => {
         const chatId = msg.chat.id;
         const message = msg.text;
+        const userID = msg.from.id;
+        const childID = await getChildID(userID);
         if (typeof message!=='undefined'){ 
             switch (message) {
                 case 'Child delay':
-                    const userID = msg.from.id;
-                    const parent = Escorts.findOne({_telegramID:userID});
-                    // console.log(parent);
-                    // const childID = parent._children;
-                    //const child = Children.findOne({_id:childID});
-                    // send updateRequest to update attendance report
-                    //ChildAttendance.Update({_id:childID},/*{_date:getCurrentDate},*/{$set:{_delay:true}});
-                    ParentBot.sendMessage(chatId, "Thank you for letting me know!");
-                    ParentBot.sendMessage(chatId, 'See you soon!');
+                    console.log(1);
+                    await updateChildDelay(childID);
+                    ThanksMessage(chatId);
                     break;
                 case 'Escort delay':
-                    //getChildId according to parent
-                    //ChildAttendance.Update({_id:childID},/*{_date:getCurrentDate},*/{$set:{_parentDelay:true}});
-                    ParentBot.sendMessage(chatId, "Thank you for letting me know!");
-                    ParentBot.sendMessage(chatId, 'See you soon!');
+                    console.log(2);
+                    await updateEscortDelay(childID);
+                    ThanksMessage(chatId);
                     break;
                 case 'Child absence':
                     ParentBot.sendMessage(chatId,'What is the reason for the absence',absenceMenu);
