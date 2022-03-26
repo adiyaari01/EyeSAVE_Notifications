@@ -6,7 +6,6 @@ const ChildAttendance = model("childAttendanceReport")
 
 const {option, menu, absenceMenu} = require("./menus");
 const {TELEGRAM_TOKEN_PARENTS} = process.env
-const {getRequest, updateRequest} = require("../api");
 
 const ParentBot = new TelegramBot(TELEGRAM_TOKEN_PARENTS, {polling:true});
 
@@ -21,38 +20,41 @@ const getCurrentDate =  () =>{
     // prints date in YYYY-MM-DD format
     return year + "-" + month + "-" + day;
 }
-exports.getCurrentDate = getCurrentDate;
 
-exports.sendMessageToParent = async (userID,msg)=>{
+const sendMessageToParent = async (userID,msg)=>{
     await ParentBot.sendMessage(userID,msg);
 }
 
 const getChildID = async (userID) => {
     const parent = await Escorts.findOne({_telegramID:userID}).lean();
-    const childID = parent._children[0];
+    const childID = parent ? parent._children[0]: null;
     return childID;
 }
-exports.getChildID = getChildID;
+
+
+const updateChildAbsence = async (childID)=>{
+    const date = getCurrentDate();
+    await ChildAttendance.findOneAndUpdate({_childId:childID, _date:date},
+    {$set:{_childDelay:false, _absence:true, _childId : childID, _date : date}},{upsert:true});
+}
+
 
 const updateChildDelay = async (childID)=>{
     const date = getCurrentDate();
     await ChildAttendance.findOneAndUpdate({_childId:childID, _date:date},
-    {$set:{_childDelay:true, _childId : childID, _date : date}},{upsert:true});
+    {$set:{_childDelay:true, _absence:false, _childId : childID, _date : date}},{upsert:true});
 }
-exports.updateChildDelay = updateChildDelay;
 
 const updateEscortDelay = async (childID)=>{
     const date = getCurrentDate();
     await ChildAttendance.findOneAndUpdate({_childId:childID, _date:date},
     {$set:{_escortDelay:true, _childId : childID, _date : date}},{upsert:true});
 }
-exports.updateEscortDelay = updateEscortDelay();
 
 const ThanksMessage = (chatId) =>{
     ParentBot.sendMessage(chatId, "Thank you for letting me know!");
     ParentBot.sendMessage(chatId, 'See you soon!');
 }
-exports.ThanksMessage = ThanksMessage;
 
 ParentBot.onText(/\/start/, (msg) => {
     const userID = msg.from.id;
@@ -62,10 +64,11 @@ ParentBot.onText(/\/start/, (msg) => {
     ParentBot.on("contact", async (msg)=>{
         const userID = msg.from.id;
         const phone = msg.contact.phone_number;
-        const parent = await Escorts.findOne({_telegramID:userID})    
-        if (!parent){
+        // const parent = await Escorts.findOne({_telegramID:userID})    
+        // if (!parent){
             await Escorts.updateOne({_phone:phone},{_telegramID:userID});
-        }
+            //TODO: if can't find phone??
+        // }
         ParentBot.sendMessage(msg.chat.id,'Thank you!');
     })
 
@@ -77,16 +80,15 @@ ParentBot.onText(/\/start/, (msg) => {
         if (typeof message!=='undefined'){ 
             switch (message) {
                 case 'Child delay':
-                    console.log(1);
                     await updateChildDelay(childID);
                     ThanksMessage(chatId);
                     break;
                 case 'Escort delay':
-                    console.log(2);
                     await updateEscortDelay(childID);
                     ThanksMessage(chatId);
                     break;
                 case 'Child absence':
+                    await updateChildAbsence(childID);
                     ParentBot.sendMessage(chatId,'What is the reason for the absence',absenceMenu);
                     break;
                 case 'Sickness':
@@ -100,6 +102,9 @@ ParentBot.onText(/\/start/, (msg) => {
                     break;
                 case '/start':
                     break;
+                case 'Cancel':
+                    ParentBot.sendMessage(chatId, "Hope to see you around again , Bye");
+                    break;
                 default:
                 // send a message to the chat acknowledging receipt of their message
                 ParentBot.sendMessage(chatId, 'Hello!');
@@ -107,5 +112,13 @@ ParentBot.onText(/\/start/, (msg) => {
             }
         }
     });
+    
+exports.sendMessageToParent = sendMessageToParent;
+exports.getCurrentDate = getCurrentDate;
+exports.getChildID = getChildID;
+exports.updateChildAbsence = updateChildAbsence;
+exports.updateChildDelay = updateChildDelay;
+exports.updateEscortDelay = updateEscortDelay;
+exports.ThanksMessage = ThanksMessage;
 
     
