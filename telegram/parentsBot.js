@@ -31,7 +31,6 @@ const getChildID = async (userID) => {
     return childID;
 }
 
-
 const updateChildAbsence = async (childID)=>{
     const date = getCurrentDate();
     await ChildAttendance.findOneAndUpdate({_childId:childID, _date:date},
@@ -67,9 +66,18 @@ ParentBot.onText(/\/start/, (msg) => {
         // const parent = await Escorts.findOne({_telegramID:userID})    
         // if (!parent){
             await Escorts.updateOne({_phone:phone},{_telegramID:userID});
+            ParentBot.sendMessage(msg.chat.id,'Thank you!');
+
             //TODO: if can't find phone??
         // }
-        ParentBot.sendMessage(msg.chat.id,'Thank you!');
+        
+        // try{
+        //     await Escorts.updateOne({_phone:phone},{_telegramID:userID});
+        //     ParentBot.sendMessage(msg.chat.id,'Thank you!');
+        // }catch (error) {
+        //     console.error(error);
+        //     ParentBot.sendMessage(msg.chat.id,'There is a problem. please contact the manager!');
+        // }
     })
 
     ParentBot.on('message', async (msg) => {
