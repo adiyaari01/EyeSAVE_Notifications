@@ -10,6 +10,8 @@ exports.sendNotificationToParent = async (req, res, next) => {
   }
 };
 
+//TODO: fix return value
+
 exports.sendNotificationToParents = async (req, res, next) => {
   await Promise.all(req.body.parents.map(parentId => {
     return sendMessageToParent(parentId, req.body.msg);

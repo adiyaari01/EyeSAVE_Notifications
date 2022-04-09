@@ -11,16 +11,16 @@ const corsOptions = {
     origin: [
       "http://127.0.0.1:3000",
       "http://localhost:3000",
-      "https://eyesaveserver.herokuapp.com" ,
+      "https://eyesave.herokuapp.com" ,
     ],
     credentials: true,
   };
 
 require("./models");
 
+app.use(cors(corsOptions));
 if (process.env.NODE_ENV === "production") {
     app.use(express.static(path.resolve(__dirname, "public")));
-    app.use(cors(corsOptions));
 }
 
 app.use(express.json());
