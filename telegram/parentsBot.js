@@ -26,9 +26,15 @@ const sendMessageToParent = async (userID,msg)=>{
 }
 
 const getChildID = async (userID) => {
-    const parent = await Escorts.findOne({_telegramID:userID}).lean();
-    const childID = parent ? parent._children[0]: null;
-    return childID;
+    try{
+        const parent = await Escorts.findOne({_telegramID:userID}).lean();
+        const childID = parent ? parent._children[0]: null;
+        return childID;
+    }
+    catch(e)
+    {
+        console.log(e)
+    }
 }
 
 const updateChildAbsence = async (childID)=>{
@@ -85,7 +91,7 @@ ParentBot.onText(/\/start/, (msg) => {
         const message = msg.text;
         const userID = msg.from.id;
         const childID = await getChildID(userID);
-        if (typeof message!=='undefined'){ 
+        if (typeof message!=='undefined' & childID){ 
             switch (message) {
                 case 'Child delay':
                     await updateChildDelay(childID);
