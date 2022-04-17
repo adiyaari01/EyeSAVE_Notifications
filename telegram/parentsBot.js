@@ -27,6 +27,7 @@ const sendMessageToParent = async (userID,msg)=>{
 
 const getChildID = async (userID) => {
     try{
+        console.log('we are in getChildID with userID ',userID);
         const parent = await Escorts.findOne({_telegramID:userID}).lean();
         const childID = parent ? parent._children[0]: null;
         return childID;
