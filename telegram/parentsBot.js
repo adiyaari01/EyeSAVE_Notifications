@@ -34,7 +34,8 @@ const getChildID = async (userID) => {
     }
     catch(e)
     {
-        console.log(e)
+        console.log('ERRRORRRRRRRRRRRR::::::: getChildID   ',e)
+        //console.log(e)
     }
 }
 
