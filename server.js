@@ -13,6 +13,7 @@ const corsOptions = {
       "http://localhost:3000",
       "https://eyesave.herokuapp.com" ,
     ],
+    optionsSuccessStatus: 200,
     credentials: true,
   };
 
