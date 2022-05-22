@@ -8,13 +8,14 @@ const app = express();
 // const port = 8001;
 const port = process.env.PORT || 8001 
 const corsOptions = {
-    origin: [
-      "http://127.0.0.1:3000",
-      "http://localhost:3000",
-      "https://eyesave.herokuapp.com" ,
-    ],
-    optionsSuccessStatus: 200,
+  origin: '*',
+    // origin: [
+    //   "http://127.0.0.1:3000",
+    //   "http://localhost:3000",
+    //   "https://eyesave.herokuapp.com" ,
+    // ],
     credentials: true,
+    optionsSuccessStatus: 200,
   };
 
 require("./models");
