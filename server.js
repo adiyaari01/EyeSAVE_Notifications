@@ -15,6 +15,7 @@ const corsOptions = {
     "https://eyesave.herokuapp.com" ,
   ],
   credentials: true,
+  optionSuccessStatus: 200
 };
 
 require("./models");
