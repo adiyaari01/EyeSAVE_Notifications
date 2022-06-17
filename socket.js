@@ -1,7 +1,7 @@
-const { Server } = require("socket.io");
+const IO = require("socket.io")
 let io;
 module.exports.init = (server) => {
-  io = new Server(server, {
+  io = IO(server, {
     cors: {
       origin: "https://eyesave.netlify.app",
       methods: ["GET", "POST"],
