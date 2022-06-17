@@ -19,6 +19,7 @@ const corsOptions = {
     "http://localhost:3000",
     "https://eyesave.netlify.app",
     "https://eyesave.herokuapp.com",
+    "https://eye-save-noitfications.herokuapp.com",
   ],
   credentials: true,
   optionSuccessStatus: 200,
