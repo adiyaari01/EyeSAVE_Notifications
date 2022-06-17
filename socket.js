@@ -3,9 +3,9 @@ let io;
 module.exports.init = (server) => {
   io = IO(server, {
     cors: {
-      origin: "https://eyesave.netlify.app",
+      origin: "*",
       methods: ["GET", "POST"],
-      credentials: false,
+      credentials: true,
       optionSuccessStatus: 200,
     },
   });
