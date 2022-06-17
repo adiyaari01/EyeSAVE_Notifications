@@ -9,10 +9,6 @@ module.exports.init = (server) => {
       optionSuccessStatus: 200,
     },
   });
-  io.use((socket, next) => {
-    socket.request.headers["access-control-allow-origin"]='*'
-    next()
-  });
 };
 
 function getSocket() {
