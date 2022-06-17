@@ -3,7 +3,7 @@ let io;
 module.exports.init = (server) => {
   io = new Server(server,{
     cors: {
-        origin: true
+        origin: ['*']
         // [    
         //   "http://127.0.0.1:3000",
         //   "http://localhost:3000",
