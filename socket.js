@@ -3,11 +3,15 @@ let io;
 module.exports.init = (server) => {
   io = new Server(server, {
     cors: {
-      origin: 'https://eyesave.netlify.app',
-      methods: ["GET","POST"],
+      origin: "https://eyesave.netlify.app",
+      methods: ["GET", "POST"],
       credentials: false,
       optionSuccessStatus: 200,
     },
+  });
+  io.use((socket, next) => {
+    socket.request.headers["access-control-allow-origin"]='*'
+    next()
   });
 };
 
