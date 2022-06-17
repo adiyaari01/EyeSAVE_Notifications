@@ -1,12 +1,11 @@
-const IO = require("socket.io")
+const {Server} = require("socket.io")
 let io;
 module.exports.init = (server) => {
-  io = IO(server, {
+  io = new Server(server, {
     cors: {
-      origin: "*",
-      methods: ["GET", "POST"],
+      origin: "https://eyesave.netlify.app",
       credentials: true,
-      optionSuccessStatus: 200,
+      allowedHeaders: ['my-header']
     },
   });
 };
