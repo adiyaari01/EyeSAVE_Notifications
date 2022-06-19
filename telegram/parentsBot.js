@@ -125,6 +125,8 @@ ParentBot.on("message", async (msg) => {
   const message = msg.text;
   const userID = msg.from.id;
   const childID = await getChildID(userID);
+  const socket = getSocket();
+
   // all message
   if ((typeof message !== "undefined") & childID) {
     switch (message) {
@@ -133,13 +135,14 @@ ParentBot.on("message", async (msg) => {
 
         await updateChildDelay(childID);
         ThanksMessage(chatId);
-        const socket = getSocket();
         if (!socket) return;
         socket.sockets.emit('delay',{ type: "delay", childID });
         break;
       case "Escort delay":
         await updateEscortDelay(childID);
         ThanksMessage(chatId);
+        if (!socket) return;
+        socket.sockets.emit('EscortDelay',{ type: "EscortDelay", childID });
         break;
       case "Child absence":
         await updateChildAbsence(childID);
@@ -148,6 +151,8 @@ ParentBot.on("message", async (msg) => {
           "What is the reason for the absence",
           absenceMenu
         );
+        if (!socket) return;
+        socket.sockets.emit('absence',{ type: "absence", childID });
         break;
       case "Sickness":
         ParentBot.sendMessage(chatId, "Wish you a speedy recovery");
